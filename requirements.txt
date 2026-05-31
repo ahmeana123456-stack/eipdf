@@ -1,0 +1,7 @@
+streamlit
+pypdf
+pdfplumber
+pikepdf
+pillow
+gTTS
+pandas
