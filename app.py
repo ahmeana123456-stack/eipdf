@@ -2,37 +2,58 @@ import streamlit as st
 from pypdf import PdfReader, PdfWriter
 import io
 
-st.title("موقع eipdf - أدوات PDF")
+# إعداد الصفحة لتكون باسم eipdf
+st.set_page_config(page_title="eipdf - منصة أدوات PDF", layout="centered")
 
-# القائمة الجانبية لتطوير الموقع
-menu = st.sidebar.selectbox("اختر أداة", ["دمج ملفات PDF", "تقسيم PDF"])
+st.markdown("""
+    <h1 style='text-align: center; color: #ff4b4b;'>🚀 منصة eipdf</h1>
+    <p style='text-align: center;'>كل أدوات الـ PDF التي تحتاجها في مكان واحد</p>
+    <hr>
+""", unsafe_allow_html=True)
 
-# أداة الدمج
-if menu == "دمج ملفات PDF":
-    st.header("أداة دمج ملفات PDF")
-    uploaded_files = st.file_uploader("اختر ملفات PDF لدمجها", accept_multiple_files=True, type=['pdf'])
+# القائمة الجانبية باسم eipdf
+menu = st.sidebar.radio("📋 أدوات eipdf", ["الرئيسية", "دمج ملفات", "تقسيم ملفات", "تدوير الصفحات"])
+
+if menu == "الرئيسية":
+    st.info("💡 اختر أداة من القائمة الجانبية للبدء.")
+    st.write("مرحباً بك في eipdf، منصتك المتكاملة لمعالجة ملفات الـ PDF بسرعة وسهولة.")
+
+elif menu == "دمج ملفات":
+    st.subheader("🔗 دمج ملفات PDF")
+    files = st.file_uploader("ارفع الملفات", accept_multiple_files=True, type=['pdf'])
     if st.button("دمج الملفات"):
-        if uploaded_files:
+        if files:
             writer = PdfWriter()
-            for file in uploaded_files:
-                writer.append(file)
+            for f in files: writer.append(f)
             output = io.BytesIO()
             writer.write(output)
-            st.success("تم الدمج!")
+            st.success("تم الدمج بنجاح!")
             st.download_button("تحميل الملف المدمج", output.getvalue(), "merged.pdf", "application/pdf")
 
-# أداة التقسيم (جديدة!)
-elif menu == "تقسيم PDF":
-    st.header("أداة تقسيم PDF")
-    uploaded_file = st.file_uploader("ارفع ملف PDF لتقسيمه", type=['pdf'])
-    page_number = st.number_input("اكتب رقم الصفحة التي تريد استخراجها", min_value=1, step=1)
-    
-    if st.button("تقسيم الصفحة"):
-        if uploaded_file:
-            reader = PdfReader(uploaded_file)
+elif menu == "تقسيم ملفات":
+    st.subheader("✂️ تقسيم ملفات PDF")
+    file = st.file_uploader("ارفع الملف", type=['pdf'])
+    page_num = st.number_input("رقم الصفحة المطلوبة", min_value=1, step=1)
+    if st.button("استخراج الصفحة"):
+        if file:
+            reader = PdfReader(file)
             writer = PdfWriter()
-            writer.add_page(reader.pages[page_number - 1])
+            writer.add_page(reader.pages[page_num-1])
             output = io.BytesIO()
             writer.write(output)
-            st.success(f"تم استخراج الصفحة رقم {page_number}")
-            st.download_button("تحميل الصفحة", output.getvalue(), f"page_{page_number}.pdf", "application/pdf")
+            st.download_button("تحميل الصفحة", output.getvalue(), f"page_{page_num}.pdf", "application/pdf")
+
+elif menu == "تدوير الصفحات":
+    st.subheader("🔄 تدوير ملفات PDF")
+    file = st.file_uploader("ارفع الملف", type=['pdf'])
+    angle = st.selectbox("اختر الزاوية", [90, 180, 270])
+    if st.button("تدوير الملف"):
+        if file:
+            reader = PdfReader(file)
+            writer = PdfWriter()
+            for page in reader.pages:
+                page.rotate(angle)
+                writer.add_page(page)
+            output = io.BytesIO()
+            writer.write(output)
+            st.download_button("تحميل الملف المدور", output.getvalue(), "rotated.pdf", "application/pdf")
