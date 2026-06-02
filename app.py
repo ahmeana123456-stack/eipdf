@@ -1,59 +1,33 @@
 import streamlit as st
-from pypdf import PdfReader, PdfWriter
-import io
 
-# إعداد الصفحة لتكون باسم eipdf
-st.set_page_config(page_title="eipdf - منصة أدوات PDF", layout="centered")
+st.set_page_config(page_title="eipdf - منصة أدوات PDF", layout="wide")
 
+# CSS لتجميل البطاقات
 st.markdown("""
-    <h1 style='text-align: center; color: #ff4b4b;'>🚀 منصة eipdf</h1>
-    <p style='text-align: center;'>كل أدوات الـ PDF التي تحتاجها في مكان واحد</p>
-    <hr>
+    <style>
+    .card { background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #ddd; text-align: center; }
+    </style>
 """, unsafe_allow_html=True)
 
-# القائمة الجانبية باسم eipdf
-menu = st.sidebar.radio("📋 أدوات eipdf", ["الرئيسية", "دمج ملفات", "تقسيم ملفات", "تدوير الصفحات"])
+st.title("🚀 eipdf - أدوات PDF المجانية")
+st.write("---")
 
-if menu == "الرئيسية":
-    st.info("💡 اختر أداة من القائمة الجانبية للبدء.")
-    st.write("مرحباً بك في eipdf، منصتك المتكاملة لمعالجة ملفات الـ PDF بسرعة وسهولة.")
+# تقسيم الصفحة لأعمدة لعرض الأدوات كبطاقات
+col1, col2, col3 = st.columns(3)
 
-elif menu == "دمج ملفات":
-    st.subheader("🔗 دمج ملفات PDF")
-    files = st.file_uploader("ارفع الملفات", accept_multiple_files=True, type=['pdf'])
-    if st.button("دمج الملفات"):
-        if files:
-            writer = PdfWriter()
-            for f in files: writer.append(f)
-            output = io.BytesIO()
-            writer.write(output)
-            st.success("تم الدمج بنجاح!")
-            st.download_button("تحميل الملف المدمج", output.getvalue(), "merged.pdf", "application/pdf")
+with col1:
+    st.markdown("<div class='card'><h3>🔗 دمج</h3><p>دمج عدة ملفات في ملف واحد</p></div>", unsafe_allow_html=True)
+    if st.button("اذهب لدمج ملفات"): st.session_state.page = "دمج"
 
-elif menu == "تقسيم ملفات":
-    st.subheader("✂️ تقسيم ملفات PDF")
-    file = st.file_uploader("ارفع الملف", type=['pdf'])
-    page_num = st.number_input("رقم الصفحة المطلوبة", min_value=1, step=1)
-    if st.button("استخراج الصفحة"):
-        if file:
-            reader = PdfReader(file)
-            writer = PdfWriter()
-            writer.add_page(reader.pages[page_num-1])
-            output = io.BytesIO()
-            writer.write(output)
-            st.download_button("تحميل الصفحة", output.getvalue(), f"page_{page_num}.pdf", "application/pdf")
+with col2:
+    st.markdown("<div class='card'><h3>✂️ تقسيم</h3><p>استخراج صفحات من PDF</p></div>", unsafe_allow_html=True)
+    if st.button("اذهب لتقسيم ملفات"): st.session_state.page = "تقسيم"
 
-elif menu == "تدوير الصفحات":
-    st.subheader("🔄 تدوير ملفات PDF")
-    file = st.file_uploader("ارفع الملف", type=['pdf'])
-    angle = st.selectbox("اختر الزاوية", [90, 180, 270])
-    if st.button("تدوير الملف"):
-        if file:
-            reader = PdfReader(file)
-            writer = PdfWriter()
-            for page in reader.pages:
-                page.rotate(angle)
-                writer.add_page(page)
-            output = io.BytesIO()
-            writer.write(output)
-            st.download_button("تحميل الملف المدور", output.getvalue(), "rotated.pdf", "application/pdf")
+with col3:
+    st.markdown("<div class='card'><h3>🔄 تدوير</h3><p>تدوير صفحات ملف PDF</p></div>", unsafe_allow_html=True)
+    if st.button("اذهب لتدوير الملف"): st.session_state.page = "تدوير"
+
+# منطق التنقل بين الأدوات
+if "page" not in st.session_state: st.session_state.page = "الرئيسية"
+
+# هنا نضع كود الأدوات بناءً على الصفحة المختارة (نفس المنطق القديم)
